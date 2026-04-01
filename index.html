@@ -3,55 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Rivals News Tracker</title>
+    <title>Roblox Rivals News</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; }
         .container { max-width: 800px; margin: 50px auto; padding: 20px; background: #1e1e1e; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h1 { color: #00ff88; }
+        h1 { color: #00ff88; text-transform: uppercase; }
         #news-list { list-style: none; padding: 0; text-align: left; }
-        .news-item { padding: 15px; border-bottom: 1px solid #333; transition: 0.3s; }
-        .news-item:hover { background: #252525; }
-        .news-item a { color: #00d9ff; text-decoration: none; font-weight: bold; font-size: 1.1em; }
-        .date { font-size: 0.8em; color: #888; display: block; margin-top: 5px; }
-        .update-tag { font-size: 0.9em; color: #ffcc00; margin-bottom: 20px; }
+        .news-item { padding: 15px; border-bottom: 1px solid #333; }
+        .news-item a { color: #00d9ff; text-decoration: none; font-weight: bold; }
+        .date { font-size: 0.8em; color: #888; display: block; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Rivals Global News</h1>
+        <p id="status">Waiting for the bot to fetch news...</p>
+        <ul id="news-list"></ul>
+    </div>
 
-<div class="container">
-    <h1>Roblox Rivals Global News</h1>
-    <div id="last-update" class="update-tag">Loading latest updates...</div>
-    <ul id="news-list">Searching the web for news...</ul>
-</div>
-
-<script>
-    fetch('news.json')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('last-update').innerText = "Last Bot Sync: " + data.last_update;
-            const list = document.getElementById('news-list');
-            list.innerHTML = '';
-            
-            if(data.articles.length === 0) {
-                list.innerHTML = '<li>No new news found today. Check back later!</li>';
-                return;
-            }
-
-            data.articles.forEach(art => {
-                const li = document.createElement('li');
-                li.className = 'news-item';
-                li.innerHTML = `
-                    <a href="${art.link}" target="_blank">${art.title}</a>
-                    <span class="date">Published: ${art.date}</span>
-                `;
-                list.appendChild(li);
+    <script>
+        fetch('news.json')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('status').innerText = "Last Update: " + data.last_update;
+                const list = document.getElementById('news-list');
+                data.articles.forEach(art => {
+                    const li = document.createElement('li');
+                    li.className = 'news-item';
+                    li.innerHTML = `<a href="${art.link}" target="_blank">${art.title}</a><span class="date">${art.date}</span>`;
+                    list.appendChild(li);
+                });
+            })
+            .catch(err => {
+                document.getElementById('status').innerText = "Bot is warming up... refresh in 5 minutes!";
             });
-        })
-        .catch(err => {
-            console.error("Error:", err);
-            document.getElementById('news-list').innerHTML = "Failed to load news. Make sure the bot has run at least once.";
-        });
-</script>
-
+    </script>
 </body>
 </html>
