@@ -5,10 +5,9 @@ from datetime import datetime
 import os
 
 def get_rivals_news():
-    queries = ["Roblox Rivals update news", "Roblox Rivals codes"]
+    queries = ["Roblox Rivals news", "Roblox Rivals update"]
     new_articles = []
     headers = {'User-Agent': 'Mozilla/5.0'}
-
     for query in queries:
         rss_url = f"https://google.com{query}&hl=en-US&gl=US&ceid=US:en"
         try:
@@ -16,9 +15,8 @@ def get_rivals_news():
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
                 for item in root.findall('.//item')[:3]:
-                    title = item.find('title').text
                     new_articles.append({
-                        "title": title,
+                        "title": item.find('title').text,
                         "date": datetime.now().strftime("%Y-%m-%d")
                     })
         except:
@@ -26,7 +24,7 @@ def get_rivals_news():
     return new_articles
 
 def update_archive():
-    # Fixed News List (No links, just text)
+    # Final List - Text only, no links
     static_news = [
         {"title": "🔥 NEW CODES! Use '100MVISITS' for a Free Rare Crate and 5,000 Coins! 💰", "date": "2026-04-01"},
         {"title": "🚀 CYBER UPDATE: New 'Neon City' Map is now LIVE! Optimized for 1v1 Snipers! 🏙️⚡", "date": "2026-03-28"},
@@ -47,7 +45,6 @@ def update_archive():
 
     fresh_news = get_rivals_news()
     existing_titles = {art['title'] for art in archive}
-    
     for news in fresh_news:
         if news['title'] not in existing_titles:
             archive.insert(0, news)
@@ -56,7 +53,6 @@ def update_archive():
         "last_update": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "articles": archive[:25]
     }
-    
     with open('news.json', 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=4, ensure_ascii=False)
 
