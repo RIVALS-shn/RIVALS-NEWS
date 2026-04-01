@@ -3,40 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Rivals News</title>
+    <title>Roblox Rivals News Tracker</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; }
-        .container { max-width: 800px; margin: 50px auto; padding: 20px; background: #1e1e1e; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h1 { color: #00ff88; text-transform: uppercase; }
-        #news-list { list-style: none; padding: 0; text-align: left; }
-        .news-item { padding: 15px; border-bottom: 1px solid #333; }
-        .news-item a { color: #00d9ff; text-decoration: none; font-weight: bold; }
-        .date { font-size: 0.8em; color: #888; display: block; }
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #00ff88; }
+        h1 { color: #00ff88; }
+        .news-item { background: #252525; margin: 10px 0; padding: 15px; border-radius: 5px; text-align: left; border-left: 4px solid #00d9ff; }
+        .news-item a { color: #00d9ff; text-decoration: none; font-weight: bold; display: block; }
+        .date { font-size: 12px; color: #888; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>Rivals Global News</h1>
-        <p id="status">Waiting for the bot to fetch news...</p>
-        <ul id="news-list"></ul>
+        <h1>ROBLOX RIVALS NEWS</h1>
+        <p id="update-time">Checking for updates...</p>
+        <hr>
+        <div id="news-container">Loading news... if this stays like this, the bot hasn't found news yet.</div>
     </div>
 
     <script>
+        // Încercăm să citim fișierul generat de robot
         fetch('news.json')
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('status').innerText = "Last Update: " + data.last_update;
-                const list = document.getElementById('news-list');
-                data.articles.forEach(art => {
-                    const li = document.createElement('li');
-                    li.className = 'news-item';
-                    li.innerHTML = `<a href="${art.link}" target="_blank">${art.title}</a><span class="date">${art.date}</span>`;
-                    list.appendChild(li);
-                });
+            .then(response => {
+                if (!response.ok) throw new Error("File not found");
+                return response.json();
             })
-            .catch(err => {
-                document.getElementById('status').innerText = "Bot is warming up... refresh in 5 minutes!";
+            .then(data => {
+                document.getElementById('update-time').innerText = "Last Sync: " + data.last_update;
+                const container = document.getElementById('news-container');
+                container.innerHTML = ''; // Ștergem mesajul de loading
+
+                if (data.articles.length === 0) {
+                    container.innerHTML = "No news found in the last 30 days.";
+                } else {
+                    data.articles.forEach(art => {
+                        const div = document.createElement('div');
+                        div.className = 'news-item';
+                        div.innerHTML = `
+                            <a href="${art.link}" target="_blank">${art.title}</a>
+                            <span class="date">Date: ${art.date}</span>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById('news-container').innerHTML = "<b>Wait!</b> The robot is still working. Please go to GitHub Actions and press 'Run workflow', then wait for the green checkmark ✅.";
             });
     </script>
+
 </body>
 </html>
